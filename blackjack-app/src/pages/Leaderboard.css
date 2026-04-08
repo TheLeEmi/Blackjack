@@ -1,0 +1,51 @@
+/* src/pages/Leaderboard.css */
+.leaderboard-card {
+  background-color: rgba(0, 0, 0, 0.7);
+  padding: 30px;
+  border-radius: 15px;
+  max-width: 800px;
+  margin: 20px auto;
+  box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.leaderboard-table {
+  width: 100%;
+  border-collapse: collapse;
+  margin-top: 20px;
+  color: white;
+}
+
+.leaderboard-table th {
+  background-color: #111;
+  padding: 15px;
+  text-align: left;
+  border-bottom: 2px solid gold;
+}
+
+.leaderboard-table td {
+  padding: 12px 15px;
+  border-bottom: 1px solid #333;
+}
+
+.leaderboard-table tr:hover {
+  background-color: rgba(255, 255, 255, 0.1);
+}
+
+.rank-gold { color: gold; font-weight: bold; }
+.rank-silver { color: #C0C0C0; font-weight: bold; }
+.rank-bronze { color: #CD7F32; font-weight: bold; }
+
+.accuracy-bar-container {
+  width: 100px;
+  background-color: #333;
+  height: 10px;
+  border-radius: 5px;
+  display: inline-block;
+  margin-right: 10px;
+}
+
+.accuracy-bar-fill {
+  height: 100%;
+  background-color: #28a745;
+  border-radius: 5px;
+}

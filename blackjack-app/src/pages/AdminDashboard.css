@@ -1,0 +1,51 @@
+/* src/pages/AdminDashboard.css */
+.dashboard-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+  gap: 20px;
+  margin-bottom: 30px;
+}
+
+.stat-card {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 10px;
+  border-top: 4px solid gold;
+  box-shadow: 0 4px 10px rgba(0,0,0,0.5);
+}
+
+.stat-card h3 {
+  margin-bottom: 10px;
+  color: #aaa;
+  font-size: 16px;
+}
+
+.stat-card .number {
+  font-size: 32px;
+  font-weight: bold;
+  color: white;
+}
+
+.admin-table-container {
+  background-color: rgba(0, 0, 0, 0.6);
+  padding: 20px;
+  border-radius: 10px;
+  overflow-x: auto;
+}
+
+.action-btn {
+  padding: 6px 12px;
+  margin: 0 5px;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: bold;
+  font-size: 12px;
+}
+
+.btn-ban { background-color: #dc3545; color: white; }
+.btn-promote { background-color: #007bff; color: white; }
+.btn-reset { background-color: #ffc107; color: black; }
+
+.status-activ { color: #28a745; font-weight: bold; }
+.status-banat { color: #dc3545; font-weight: bold; text-decoration: line-through; }

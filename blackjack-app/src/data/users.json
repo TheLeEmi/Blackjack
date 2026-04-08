@@ -1,0 +1,30 @@
+[
+  {
+    "id": 1,
+    "username": "admin",
+    "role": "admin",
+    "balance": 10000,
+    "status": "activ"
+  },
+  {
+    "id": 2,
+    "username": "emilian",
+    "role": "user",
+    "balance": 250,
+    "status": "activ"
+  },
+  {
+    "id": 3,
+    "username": "Andrei_Ace",
+    "role": "user",
+    "balance": 1500,
+    "status": "activ"
+  },
+  {
+    "id": 4,
+    "username": "trisor_123",
+    "role": "user",
+    "balance": 99999,
+    "status": "banat"
+  }
+]
