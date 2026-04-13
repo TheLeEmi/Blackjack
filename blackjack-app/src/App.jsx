@@ -1,7 +1,7 @@
 // src/App.jsx
 import { useState, useEffect } from 'react';
 import BlackjackGame from "./components/game/BlackjackGame.jsx";
-import Lobby from "./components/game/Lobby.jsx"; // <-- Am adăugat importul pentru Lobby!
+import Lobby from "./components/game/Lobby.jsx";
 import CardCounting from './pages/CardCounting';
 import Login from './pages/Login';
 import Leaderboard from './pages/Leaderboard.jsx';
@@ -26,7 +26,7 @@ export default function App() {
   const [user, setUser] = useState(null); 
   const [currentPage, setCurrentPage] = useState('blackjack');
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
-  const [activePlayers, setActivePlayers] = useState(null); // <-- Stare nouă pentru jucătorii de la masă
+  const [activePlayers, setActivePlayers] = useState(null); 
 
   const handleLogin = (loginData) => {
     let existingUser = users.find(u => u.username === loginData.username);
@@ -88,7 +88,6 @@ export default function App() {
     });
   };
 
-  // Funcția care primește jucătorii din Lobby și pornește meciul
   const handleStartGame = (playersList) => {
     setActivePlayers(playersList);
     setCurrentPage('blackjack');
@@ -100,9 +99,9 @@ export default function App() {
 
   return (
     <div>
-      <nav className="main-nav" style={{ justifyContent: 'space-between', padding: '15px 30px' }}>
-        <div style={{ color: 'white', fontWeight: 'bold', fontSize: '22px' }}>
-          ♣️ Casino Royal
+      <nav className="main-nav">
+        <div className="nav-title">
+          <img src="/icons/clubs.png" alt="Clubs" className="ui-icon" /> Casino Royal
         </div>
 
         <div className="nav-dropdown-container">
@@ -111,21 +110,28 @@ export default function App() {
             style={{ display: 'flex', alignItems: 'center', gap: '10px' }}
             onClick={() => setIsMenuOpen(!isMenuOpen)}
           >
-            👤 {user.username} | <span style={{ color: '#28a745' }}>${user.balance}</span> 
+            <img src="/icons/user.png" alt="User" className="ui-icon" /> {user.username} | <span style={{ color: '#28a745' }}>${user.balance}</span> 
             <span style={{ fontSize: '12px' }}>{isMenuOpen ? '▲' : '▼'}</span>
           </button>
 
           {isMenuOpen && (
             <div className="dropdown-menu" onClick={() => setIsMenuOpen(false)}>
-              {/* Resetăm masa la click ca să te trimită mereu în Lobby */}
-              <button className="dropdown-item" onClick={() => { setCurrentPage('blackjack'); setActivePlayers(null); }}>♠️ Masa de Joc</button>
-              <button className="dropdown-item" onClick={() => setCurrentPage('counting')}>🧠 Antrenament</button>
-              <button className="dropdown-item" onClick={() => setCurrentPage('leaderboard')}>🏆 Clasament</button>
-              <button className="dropdown-item" onClick={() => setCurrentPage('profile')}>⚙️ Profilul Meu</button>
+              <button className="dropdown-item" onClick={() => { setCurrentPage('blackjack'); setActivePlayers(null); }}>
+                <img src="/icons/spades.png" alt="Spades" className="ui-icon" /> Masa de Joc
+              </button>
+              <button className="dropdown-item" onClick={() => setCurrentPage('counting')}>
+                <img src="/icons/brain.png" alt="Brain" className="ui-icon" /> Antrenament
+              </button>
+              <button className="dropdown-item" onClick={() => setCurrentPage('leaderboard')}>
+                <img src="/icons/trophy.png" alt="Trophy" className="ui-icon" /> Clasament
+              </button>
+              <button className="dropdown-item" onClick={() => setCurrentPage('profile')}>
+                <img src="/icons/settings.png" alt="Settings" className="ui-icon" /> Profilul Meu
+              </button>
               
               {user.role === 'admin' && (
                 <button className="dropdown-item" onClick={() => setCurrentPage('admin')} style={{ color: 'gold' }}>
-                  👑 Admin Panel
+                  <img src="/icons/crown.png" alt="Admin" className="ui-icon" /> Admin Panel
                 </button>
               )}
               
@@ -142,7 +148,6 @@ export default function App() {
         </div>
       </nav>
 
-      {/* RANDARE CONDIȚIONATĂ PENTRU LOBBY / JOC */}
       {currentPage === 'blackjack' && (
         !activePlayers ? (
           <Lobby user={user} onStartGame={handleStartGame} />
@@ -151,7 +156,7 @@ export default function App() {
             user={user} 
             players={activePlayers} 
             onGameEnd={updateUserData} 
-            onExit={() => setActivePlayers(null)} // Funcție ca să te întorci în lobby
+            onExit={() => setActivePlayers(null)}
           />
         )
       )}

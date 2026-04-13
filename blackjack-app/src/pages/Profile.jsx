@@ -44,13 +44,13 @@ export default function Profile({ user, onUpdateData }) {
             </div>
           ) : (
             <h2>
-              Profil Utilizator: {user.username}
-              <button 
-                onClick={() => setIsEditingName(true)} 
-                style={{ background: 'none', border: 'none', cursor: 'pointer', fontSize: '18px', marginLeft: '10px' }}
-              >
-                ✏️
-              </button>
+                Profil Utilizator: {user.username}
+                <button
+                  onClick={() => setIsEditingName(true)}
+                  style={{ background: 'none', border: 'none', cursor: 'pointer', marginLeft: '10px' }}
+                >
+                  <img src="/icons/edit.png" alt="Edit" className="ui-icon" />
+                </button>
             </h2>
           )}
           <p style={{ color: '#aaa' }}>Rol: <strong style={{ color: user.role === 'admin' ? 'gold' : 'white' }}>{user.role}</strong></p>

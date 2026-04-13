@@ -4,18 +4,16 @@ import { createDeck, shuffleDeck, calculateScore } from '../../utils/deckLogic';
 import Card from './Card';
 
 export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
-  const [gameState, setGameState] = useState('betting'); // 'betting', 'playing', 'dealerTurn', 'gameOver'
+  const [gameState, setGameState] = useState('betting'); 
   const [deck, setDeck] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
   
-  // Starea tuturor jucătorilor de la masă
   const [playerStates, setPlayerStates] = useState(() => 
     players.map(p => ({ ...p, hand: [], bet: 10, status: 'waiting', result: '' }))
   );
   
   const [activePlayerIndex, setActivePlayerIndex] = useState(0);
 
-  // --- FAZA 1: PARIEREA ---
   const handleBetChange = (index, value) => {
     const newStates = [...playerStates];
     newStates[index].bet = Number(value);
@@ -29,10 +27,8 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
       return;
     }
 
-    // Scădem pariul utilizatorului principal din cont
     if (mainUser) onGameEnd(-mainUser.bet); 
 
-    // Împărțim cărțile
     let currentDeck = shuffleDeck(createDeck());
     let newPlayerStates = [...playerStates];
     
@@ -49,16 +45,13 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
     setGameState('playing');
   };
 
-  // --- FAZA 2: JOCUL (RÂND PE RÂND) ---
   const advanceTurn = (currentStates) => {
     const nextIndex = activePlayerIndex + 1;
     setPlayerStates(currentStates);
     
     if (nextIndex >= currentStates.length) {
-      // Toți jucătorii au terminat, e rândul Dealerului
       setGameState('dealerTurn');
     } else {
-      // Trece la următorul jucător
       setActivePlayerIndex(nextIndex);
     }
   };
@@ -88,7 +81,6 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
     advanceTurn(newStates);
   };
 
-  // --- FAZA 3: RÂNDUL DEALERULUI ȘI REZULTATELE ---
   useEffect(() => {
     if (gameState === 'dealerTurn') {
       const dealerScore = calculateScore(dealerHand);
@@ -133,35 +125,37 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
     setPlayerStates(newStates);
     setGameState('gameOver');
     
-    // Trimitem rezultatul contului principal către App.jsx
     if (newStates.some(p => p.isMe)) {
       onGameEnd({ balance: mainUserPayout, gamePlayed: true, win: mainUserWon });
     }
   };
 
-  // --- RANDARE (UI) ---
   if (gameState === 'betting') {
     return (
       <div className="app-container">
-        <button className="btn btn-warning" onClick={onExit} style={{ position: 'absolute', top: '100px', left: '20px' }}>
-          ⬅️ Înapoi la Lobby
-        </button>
-        <div style={{ backgroundColor: 'rgba(0,0,0,0.8)', padding: '30px', borderRadius: '15px', display: 'inline-block', marginTop: '50px' }}>
-          <h2>Plasează Pariurile</h2>
-          <div style={{ display: 'flex', gap: '20px', margin: '20px 0', flexWrap: 'wrap', justifyContent: 'center' }}>
+        <div style={{ textAlign: 'left', marginBottom: '20px' }}>
+          <button className="btn btn-warning" onClick={onExit} style={{ fontSize: '14px' }}>
+            <img src="/icons/arrow-left.png" alt="Back" className="ui-icon" /> Înapoi la Lobby
+          </button>
+        </div>
+        
+        <div className="player-spot" style={{ margin: '0 auto', maxWidth: '600px' }}>
+          <h2 style={{ color: 'gold', borderBottom: '1px solid rgba(255,215,0,0.3)', paddingBottom: '10px' }}>Plasează Pariurile</h2>
+          <div className="players-grid" style={{ marginTop: '20px' }}>
             {playerStates.map((p, index) => (
-              <div key={p.id} style={{ backgroundColor: p.isMe ? 'rgba(40,167,69,0.2)' : 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '10px' }}>
-                <h4>{p.name} {p.isMe && `(Bal: $${user.balance})`}</h4>
+              <div key={p.id} style={{ backgroundColor: p.isMe ? 'rgba(40,167,69,0.2)' : 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '10px', flex: 1, minWidth: '150px' }}>
+                <h4 style={{ margin: '0 0 10px 0' }}>{p.name}</h4>
+                {p.isMe && <p style={{ fontSize: '12px', color: '#28a745', margin: '0 0 10px 0' }}>Bal: ${user.balance}</p>}
                 <input 
                   type="number" 
                   value={p.bet} 
                   onChange={(e) => handleBetChange(index, e.target.value)}
-                  style={{ padding: '8px', width: '80px', textAlign: 'center', marginTop: '10px' }}
+                  style={{ padding: '8px', width: '80%', textAlign: 'center', borderRadius: '5px', border: '1px solid #333', background: '#222', color: 'white' }}
                 />
               </div>
             ))}
           </div>
-          <button className="btn btn-primary" onClick={placeBetsAndStart} style={{ fontSize: '20px', padding: '10px 40px' }}>
+          <button className="btn btn-primary" onClick={placeBetsAndStart} style={{ marginTop: '25px', width: '100%' }}>
             Împarte Cărțile
           </button>
         </div>
@@ -171,61 +165,70 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
 
   return (
     <div className="app-container">
-      {/* HEADER CONTROALE */}
       <div style={{ minHeight: '80px', marginBottom: '20px' }}>
         {gameState === 'playing' && (
-          <div style={{ backgroundColor: 'rgba(0,0,0,0.6)', padding: '15px', borderRadius: '10px', display: 'inline-block' }}>
-            <h3 style={{ color: 'gold', margin: '0 0 10px 0' }}>Rândul lui: {playerStates[activePlayerIndex].name}</h3>
-            <button onClick={hit} className="btn btn-primary">Hit (Trage)</button>
-            <button onClick={stand} className="btn btn-warning">Stand (Oprește-te)</button>
+          <div style={{ backgroundColor: 'rgba(0,0,0,0.7)', padding: '15px 30px', borderRadius: '50px', display: 'inline-flex', alignItems: 'center', gap: '20px', boxShadow: '0 5px 15px rgba(0,0,0,0.5)' }}>
+            <h3 style={{ color: 'gold', margin: 0, fontSize: '20px' }}>
+              ▶ Rândul: <span style={{ color: 'white' }}>{playerStates[activePlayerIndex].name}</span>
+            </h3>
+            <div style={{ width: '2px', height: '30px', background: 'rgba(255,255,255,0.2)' }}></div>
+            <button onClick={hit} className="btn btn-primary" style={{ margin: 0 }}>Hit (Trage)</button>
+            <button onClick={stand} className="btn btn-warning" style={{ margin: 0 }}>Stand</button>
           </div>
         )}
         
         {gameState === 'gameOver' && (
-          <div>
-            <button onClick={() => setGameState('betting')} className="btn btn-primary" style={{ backgroundColor: '#17a2b8', fontSize: '20px' }}>
-              Joacă Mâna Următoare
+          <div style={{ display: 'flex', gap: '15px', justifyContent: 'center', flexWrap: 'wrap' }}>
+            <button onClick={() => setGameState('betting')} className="btn btn-primary">
+              Mână Nouă
             </button>
-            <button onClick={onExit} className="btn btn-warning" style={{ marginLeft: '10px' }}>Schimbă Jucătorii</button>
+            <button onClick={onExit} className="btn btn-info">
+              Schimbă Jucătorii
+            </button>
           </div>
         )}
       </div>
 
       <div className="table-section">
         {/* ZONA DEALERULUI */}
-        <section style={{ marginBottom: '40px' }}>
-          <h3>Dealer (Scor: {gameState === 'playing' ? '?' : calculateScore(dealerHand)})</h3>
+        <section className="player-spot" style={{ padding: '15px 40px', background: 'rgba(0,0,0,0.6)' }}>
+          <h3 style={{ margin: '0 0 15px 0', textTransform: 'uppercase', letterSpacing: '2px', color: '#ccc' }}>
+            Dealer <span style={{ color: 'white', background: '#333', padding: '2px 8px', borderRadius: '10px', fontSize: '14px' }}>{gameState === 'playing' ? '?' : calculateScore(dealerHand)}</span>
+          </h3>
           <div className="hand-container">
-            {dealerHand.map((c, i) => <Card key={i} card={c} hidden={i === 0 && gameState === 'playing'} />)}
+            {dealerHand.map((c, i) => <Card key={i} index={i} card={c} hidden={i === 0 && gameState === 'playing'} />)}
           </div>
         </section>
         
-        <hr style={{ width: '80%', opacity: 0.2, margin: '20px auto' }} />
-
         {/* ZONA JUCĂTORILOR */}
-        <div style={{ display: 'flex', justifyContent: 'center', gap: '30px', flexWrap: 'wrap', width: '100%' }}>
+        <div className="players-grid">
           {playerStates.map((p, index) => {
             const isActive = index === activePlayerIndex && gameState === 'playing';
             return (
-              <div key={p.id} style={{ 
-                backgroundColor: isActive ? 'rgba(255, 215, 0, 0.15)' : 'transparent',
-                border: isActive ? '2px solid gold' : '2px solid transparent',
-                padding: '15px',
-                borderRadius: '15px',
-                transition: 'all 0.3s ease',
+              <div key={p.id} className={`player-spot ${isActive ? 'active-turn' : ''}`} style={{
                 opacity: (p.status === 'bust' || p.status === 'stand' || p.status === 'done') && !isActive && gameState === 'playing' ? 0.6 : 1
               }}>
-                <h3 style={{ color: p.isMe ? '#28a745' : 'white', marginBottom: '5px' }}>
+                <h3 style={{ color: p.isMe ? '#2ecc71' : 'white', margin: '0 0 10px 0', fontSize: '20px' }}>
                   {p.name} {p.isMe && '(Tu)'}
                 </h3>
-                <p style={{ margin: '0 0 10px 0', fontSize: '14px', color: '#aaa' }}>
-                  Pariu: ${p.bet} | Scor: {calculateScore(p.hand)}
-                </p>
                 
-                {p.result && <div style={{ color: p.result.includes('Câștig') ? '#28a745' : '#dc3545', fontWeight: 'bold', marginBottom: '10px' }}>{p.result}</div>}
+                <div style={{ display: 'flex', justifyContent: 'center', gap: '15px', marginBottom: '15px' }}>
+                  <span style={{ background: 'rgba(255,255,255,0.1)', padding: '5px 10px', borderRadius: '5px', fontSize: '14px' }}>Bet: ${p.bet}</span>
+                  <span style={{ background: 'rgba(255,255,255,0.1)', padding: '5px 10px', borderRadius: '5px', fontSize: '14px' }}>Scor: <strong style={{ color: 'gold' }}>{calculateScore(p.hand)}</strong></span>
+                </div>
                 
-                <div className="hand-container" style={{ minHeight: '120px' }}>
-                  {p.hand.map((c, i) => <Card key={i} card={c} />)}
+                {p.result && (
+                  <div style={{ 
+                    position: 'absolute', top: '-15px', left: '50%', transform: 'translateX(-50%)',
+                    background: p.result.includes('Câștig') ? '#28a745' : p.result.includes('Bust') || p.result.includes('Dealerul') ? '#dc3545' : '#17a2b8',
+                    color: 'white', padding: '5px 15px', borderRadius: '20px', fontWeight: 'bold', boxShadow: '0 4px 10px rgba(0,0,0,0.5)', zIndex: 20, whiteSpace: 'nowrap'
+                  }}>
+                    {p.result}
+                  </div>
+                )}
+                
+                <div className="hand-container">
+                  {p.hand.map((c, i) => <Card key={i} index={i} card={c} />)}
                 </div>
               </div>
             );

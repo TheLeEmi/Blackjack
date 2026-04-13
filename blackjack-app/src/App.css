@@ -1,139 +1,215 @@
-/* src/App.css - Secțiunea de Navigare */
-.nav-dropdown-container {
-  position: relative;
-  display: inline-block;
-}
-
-.dropdown-menu {
-  position: absolute;
-  top: 100%;
-  right: 0;
-  background-color: #111;
-  min-width: 200px;
-  box-shadow: 0px 8px 16px rgba(0,0,0,0.5);
-  border-radius: 8px;
-  overflow: hidden;
-  z-index: 1000;
-  border: 1px solid rgba(255,255,255,0.1);
-  margin-top: 10px;
-}
-
-.dropdown-item {
-  width: 100%;
-  padding: 12px 20px;
-  background: none;
-  border: none;
-  color: white;
-  text-align: left;
-  cursor: pointer;
-  font-size: 16px;
-  transition: background 0.3s;
-}
-
-.dropdown-item:hover {
-  background-color: #222;
-  color: gold;
-}
-
-.dropdown-item.active {
-  background-color: rgba(255, 215, 0, 0.1);
-  color: gold;
-}
 /* src/App.css */
+
+/* --- STILURI GLOBALE ȘI FUNDAL CAZINO --- */
+body {
+  margin: 0;
+  min-height: 100vh;
+  background-color: #111;
+  /* Fundal verde premium tip masă de cazino */
+  background-image: radial-gradient(circle at 50% 30%, #2a5a2f 0%, #0a1a0f 100%);
+  color: white;
+  font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
+  overflow-x: hidden;
+}
+
 .app-container {
   text-align: center;
   padding: 20px;
+  max-width: 1200px;
+  margin: 0 auto;
 }
 
-/* Navigare */
+/* --- NAVIGARE RESPONSIVĂ --- */
 .main-nav {
   display: flex;
-  justify-content: center;
-  gap: 20px;
-  padding: 15px;
-  background-color: #111;
-  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
+  justify-content: space-between;
+  align-items: center;
+  padding: 15px 30px;
+  background-color: rgba(0, 0, 0, 0.8);
+  box-shadow: 0 4px 15px rgba(0,0,0,0.5);
+  backdrop-filter: blur(10px);
+  border-bottom: 2px solid rgba(255, 215, 0, 0.2);
+  position: relative;
+  z-index: 99999;
+}
+
+.nav-title {
+  color: white;
+  font-weight: bold;
+  font-size: 24px;
+  text-shadow: 0 2px 4px rgba(0,0,0,0.5);
 }
 
 .nav-btn {
   padding: 10px 20px;
-  background-color: transparent;
+  background: linear-gradient(145deg, #333, #111);
   color: white;
-  border: 1px solid white;
-  border-radius: 5px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+  border-radius: 8px;
   cursor: pointer;
   font-size: 16px;
   font-weight: bold;
   transition: all 0.2s ease;
+  box-shadow: 0 4px 6px rgba(0,0,0,0.3);
 }
 
 .nav-btn:hover {
-  background-color: rgba(255, 255, 255, 0.1);
+  background: linear-gradient(145deg, #444, #222);
+  transform: translateY(-2px);
+  border-color: rgba(255, 215, 0, 0.5);
 }
 
-.nav-btn.active {
-  opacity: 1;
-  background-color: rgba(255, 255, 255, 0.2);
+/* Dropdown */
+.nav-dropdown-container { position: relative; display: inline-block; }
+
+.dropdown-menu {
+  position: absolute;
+  top: calc(100% + 15px);
+  right: 0; 
+  background-color: #111; 
+  min-width: 220px;
+  box-shadow: 0px 10px 40px rgba(0,0,0,1); 
+  border-radius: 12px;
+  overflow: hidden;
+  border: 1px solid rgba(255, 215, 0, 0.4);
+}
+.dropdown-item {
+  width: 100%;
+  padding: 15px 20px;
+  background: none;
+  border: none;
+  color: #ddd;
+  text-align: left;
+  cursor: pointer;
+  font-size: 16px;
+  transition: all 0.2s;
+  border-bottom: 1px solid rgba(255,255,255,0.05);
 }
 
-.nav-btn.inactive {
-  opacity: 0.6;
-}
+.dropdown-item:hover { background-color: rgba(255, 215, 0, 0.1); color: gold; padding-left: 25px; }
 
-/* Butoane Joc */
+/* --- BUTOANE JOC --- */
 .btn {
   padding: 12px 25px;
-  font-size: 18px;
+  font-size: 16px;
   margin: 5px;
   cursor: pointer;
   border-radius: 8px;
   border: none;
   font-weight: bold;
-  transition: transform 0.1s;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+  box-shadow: 0 4px 10px rgba(0,0,0,0.4);
 }
 
-.btn:active {
-  transform: scale(0.95);
-}
+.btn:active { transform: scale(0.95); box-shadow: 0 2px 5px rgba(0,0,0,0.4); }
+.btn:disabled { opacity: 0.5; cursor: not-allowed; transform: none; box-shadow: none; filter: grayscale(100%); }
 
-.btn:disabled {
-  opacity: 0.5;
-  cursor: not-allowed;
-}
+.btn-primary { background: linear-gradient(to bottom, #2ecc71, #27ae60); color: white; text-shadow: 0 1px 2px rgba(0,0,0,0.5); }
+.btn-primary:hover:not(:disabled) { background: linear-gradient(to bottom, #32df7b, #2ecc71); }
 
-.btn-primary { background-color: #28a745; color: white; }
-.btn-warning { background-color: #ffc107; color: black; }
-.btn-info { background-color: #007bff; color: white; }
+.btn-warning { background: linear-gradient(to bottom, #f1c40f, #f39c12); color: #000; }
+.btn-warning:hover:not(:disabled) { background: linear-gradient(to bottom, #f5d342, #f1c40f); }
 
-/* Masa de Blackjack */
-.message-box {
-  background-color: rgba(0,0,0,0.5);
-  padding: 15px;
-  border-radius: 10px;
-  display: inline-block;
-  margin-top: 10px;
-}
+.btn-info { background: linear-gradient(to bottom, #3498db, #2980b9); color: white; }
 
+/* --- MASA DE BLACKJACK --- */
 .table-section {
   display: flex;
   flex-direction: column;
   align-items: center;
   margin-top: 20px;
+  width: 100%;
 }
 
-.player-area { margin-top: 30px; }
+.players-grid {
+  display: flex;
+  justify-content: center;
+  gap: 20px;
+  flex-wrap: wrap;
+  width: 100%;
+  margin-top: 30px;
+}
+
+.player-spot {
+  background: rgba(0, 0, 0, 0.4);
+  padding: 20px;
+  border-radius: 20px;
+  min-width: 250px;
+  flex: 1;
+  max-width: 350px;
+  box-shadow: inset 0 0 20px rgba(0,0,0,0.5), 0 10px 20px rgba(0,0,0,0.3);
+  position: relative;
+  border: 2px solid rgba(255,255,255,0.05);
+}
+
+.player-spot.active-turn {
+  background: rgba(255, 215, 0, 0.05);
+  border-color: gold;
+  box-shadow: 0 0 30px rgba(255, 215, 0, 0.2), inset 0 0 20px rgba(0,0,0,0.5);
+  transform: translateY(-5px);
+}
 
 .hand-container {
   display: flex;
   justify-content: center;
-  min-height: 150px;
-  margin-top: 10px;
+  min-height: 140px;
+  margin-top: 15px;
+  position: relative;
 }
 
-/* Cărți de joc */
+/* --- ANIMAȚII CĂRȚI --- */
 .playing-card {
-  width: 100px;
-  margin: 5px;
-  border-radius: 5px;
-  box-shadow: 2px 2px 5px rgba(0,0,0,0.4);
+  width: 90px;
+  margin: 0 -25px; /* Suprapunere cărți */
+  border-radius: 8px;
+  box-shadow: -2px 5px 10px rgba(0,0,0,0.5);
+  transition: transform 0.3s ease;
+  position: relative;
+}
+
+.playing-card:hover { transform: translateY(-15px) scale(1.05); z-index: 10 !important; }
+
+.deal-animation {
+  animation: slideDown 0.5s cubic-bezier(0.175, 0.885, 0.32, 1.275) forwards;
+  opacity: 0;
+}
+
+@keyframes slideDown {
+  0% { transform: translateY(-200px) rotate(-20deg) scale(0.5); opacity: 0; }
+  100% { transform: translateY(0) rotate(0) scale(1); opacity: 1; }
+}
+
+/* --- MEDIA QUERIES (PENTRU TELEFOANE) --- */
+@media (max-width: 768px) {
+  .main-nav { padding: 10px 15px; }
+  .nav-title { font-size: 18px; }
+  .nav-btn { font-size: 14px; padding: 8px 15px; }
+  
+  .players-grid { gap: 15px; flex-direction: column; align-items: center; }
+  .player-spot { width: 90%; max-width: none; min-width: auto; }
+  
+  .playing-card { width: 75px; margin: 0 -20px; }
+  .hand-container { min-height: 110px; }
+  
+  .btn { width: 100%; margin: 5px 0; }
+  .dropdown-menu {
+    right: 0; /* Pe telefon îl ținem aliniat la margine ca să nu iasă din ecran */
+  }
+}
+
+/* Stil general pentru iconițele din interfață */
+.ui-icon {
+  width: 20px;
+  height: 20px;
+  vertical-align: middle; /* Le aliniază perfect cu textul de lângă ele */
+  margin-right: 8px; /* Spațiu între iconiță și text */
+  object-fit: contain;
+}
+
+/* Dacă iconițele sunt în titluri mari, le facem un pic mai mari */
+h1 .ui-icon, h2 .ui-icon {
+  width: 28px;
+  height: 28px;
 }

@@ -2,9 +2,7 @@
 import { useState, useEffect } from 'react';
 import { createDeck, shuffleDeck } from '../utils/deckLogic';
 import Card from '../components/game/Card';
-import './CardCounting.css'; 
 
-// AM ADĂUGAT prop-ul onTrainingEnd aici:
 export default function CardCounting({ onTrainingEnd }) {
   const [phase, setPhase] = useState('intro'); 
   const [targetNumCards, setTargetNumCards] = useState(10);
@@ -80,8 +78,6 @@ export default function CardCounting({ onTrainingEnd }) {
     e.preventDefault();
     if (userGuess !== '') {
       setPhase('result');
-      
-      // AICI SALVĂM REZULTATUL
       const isCorrect = parseInt(userGuess) === actualCount;
       if (onTrainingEnd) {
         onTrainingEnd({ countAttempted: true, countCorrect: isCorrect });
@@ -89,97 +85,90 @@ export default function CardCounting({ onTrainingEnd }) {
     }
   };
 
+  // Stil comun pentru input-uri
+  const inputStyle = { padding: '10px', fontSize: '16px', borderRadius: '5px', border: '1px solid #444', background: '#222', color: 'white', width: '100%', boxSizing: 'border-box', marginTop: '5px' };
+
   return (
     <div className="app-container">
-      <h1>🧠 Antrenament Numărat Cărți (Hi-Lo)</h1>
+      <h1 style={{ color: 'white', textShadow: '0 2px 5px rgba(0,0,0,0.5)', marginBottom: '30px' }}>
+        <img src="/icons/brain.png" alt="Brain" className="ui-icon" /> Masterclass: Numărat Cărți
+      </h1>
 
       {phase === 'intro' && (
-        <div className="info-card">
-          <h2>Reguli Sistem Hi-Lo</h2>
-          <ul className="rules-list">
-            <li>Cărțile <strong>2, 3, 4, 5, 6</strong> valorează <strong className="positive-val">+1</strong></li>
-            <li>Cărțile <strong>7, 8, 9</strong> valorează <strong>0</strong></li>
-            <li>Cărțile <strong>10, J, Q, K, A</strong> valorează <strong className="negative-val">-1</strong></li>
-          </ul>
+        <div className="player-spot" style={{ maxWidth: '500px', margin: '0 auto', textAlign: 'left' }}>
+          <h2 style={{ color: 'gold', borderBottom: '1px solid rgba(255,215,0,0.3)', paddingBottom: '10px' }}>Sistemul Hi-Lo</h2>
           
-          <div className="settings-group">
-            <div className="setting-item">
-              <label className="setting-label">Câte cărți vrei să numeri?</label>
-              <input 
-                type="number" 
-                value={targetNumCards} 
-                onChange={(e) => setTargetNumCards(e.target.value)} 
-                min="1" 
-                max="52" 
-                className="custom-input" 
-              />
-            </div>
-
-            <div className="setting-item">
-              <label className="setting-label">Viteză afișare:</label>
-              <select 
-                value={speed} 
-                onChange={(e) => setSpeed(Number(e.target.value))} 
-                className="custom-input speed-select"
-              >
-                <option value={2000}>Începător (2s)</option>
-                <option value={1000}>Normal (1s)</option>
-                <option value={500}>Avansat (0.5s)</option>
-              </select>
-            </div>
+          <div style={{ background: 'rgba(0,0,0,0.3)', padding: '15px', borderRadius: '8px', marginBottom: '20px' }}>
+            <ul style={{ listStyle: 'none', padding: 0, margin: 0, lineHeight: '1.8' }}>
+              <li>Cărțile <strong>2, 3, 4, 5, 6</strong> <span style={{margin: '0 10px'}}>+1</span></li>
+              <li>Cărțile <strong>7, 8, 9</strong> <span style={{margin: '0 10px'}}>0</span></li>
+              <li>Cărțile <strong>10, J, Q, K, A</strong> <span style={{margin: '0 10px'}}>-1</span></li>
+            </ul>
+          </div>
+          
+          <div style={{ marginBottom: '15px' }}>
+            <label style={{ color: '#aaa', fontSize: '14px' }}>Număr de cărți (1-52):</label>
+            <input type="number" value={targetNumCards} onChange={(e) => setTargetNumCards(e.target.value)} min="1" max="52" style={inputStyle} />
           </div>
 
-          <button onClick={startTraining} className="btn btn-info">Începe Antrenamentul</button>
+          <div style={{ marginBottom: '25px' }}>
+            <label style={{ color: '#aaa', fontSize: '14px' }}>Viteză afișare:</label>
+            <select value={speed} onChange={(e) => setSpeed(Number(e.target.value))} style={inputStyle}>
+              <option value={2000}>Începător (2s)</option>
+              <option value={1000}>Normal (1s)</option>
+              <option value={500}>Avansat (0.5s)</option>
+            </select>
+          </div>
+
+          <button onClick={startTraining} className="btn btn-primary" style={{ width: '100%', fontSize: '18px' }}>Începe Antrenamentul</button>
         </div>
       )}
 
       {phase === 'loading' && (
-        <div className="loading-area">
-          <h2>Se pregătesc cărțile... ⏳</h2>
-          <p>Se preîncarcă imaginile în memorie.</p>
+        <div className="player-spot" style={{ maxWidth: '400px', margin: '50px auto' }}>
+          <h2 style={{ color: 'gold' }}><img src="/icons/hourglass.png" alt="Loading" className="ui-icon" /> Se amestecă pachetul...</h2>
         </div>
       )}
 
       {phase === 'playing' && (
-        <div>
-          <h3>Fii atent! Cartea {cardsShown} din {targetNumCards}</h3>
-          <div className="card-display-area">
-            {currentCard ? <Card card={currentCard} /> : <p>Pregătește-te...</p>}
+        <div style={{ marginTop: '50px' }}>
+          <div style={{ background: 'rgba(0,0,0,0.7)', padding: '10px 30px', borderRadius: '30px', display: 'inline-block', marginBottom: '30px' }}>
+            <h3 style={{ margin: 0, color: 'gold' }}>Cartea {cardsShown} / {targetNumCards}</h3>
+          </div>
+          <div style={{ height: '200px', display: 'flex', justifyContent: 'center', alignItems: 'center' }}>
+            {currentCard ? <Card card={currentCard} index={cardsShown} /> : <div className="playing-card" style={{ visibility: 'hidden' }}></div>}
           </div>
         </div>
       )}
 
       {phase === 'guessing' && (
-        <div className="info-card">
-          <h2>Cărțile s-au terminat!</h2>
+        <div className="player-spot" style={{ maxWidth: '400px', margin: '50px auto' }}>
+          <h2 style={{ color: 'gold' }}><img src="/icons/hand-stop.png" alt="Stop" className="ui-icon" /> Stop!</h2>
           <form onSubmit={handleSubmit}>
-            <label className="setting-label" style={{ display: 'block', marginBottom: '15px' }}>
-              Care este scorul final?
-            </label>
-            <input 
-              type="number" 
-              value={userGuess} 
-              onChange={(e) => setUserGuess(e.target.value)} 
-              className="custom-input" 
-              required 
-            />
-            <br /><br />
-            <button type="submit" className="btn btn-primary">Verifică</button>
+            <label style={{ color: '#aaa', display: 'block', marginBottom: '10px' }}>Care este scorul (True Count) final?</label>
+            <input type="number" value={userGuess} onChange={(e) => setUserGuess(e.target.value)} required style={{...inputStyle, textAlign: 'center', fontSize: '24px'}} />
+            <button type="submit" className="btn btn-primary" style={{ width: '100%', marginTop: '20px' }}>Verifică Răspunsul</button>
           </form>
         </div>
       )}
 
       {phase === 'result' && (
-        <div className="info-card">
+        <div className="player-spot" style={{ maxWidth: '400px', margin: '50px auto' }}>
           {parseInt(userGuess) === actualCount ? (
-            <h2 className="positive-val">🎉 Felicitări! Numărătoarea ta este corectă!</h2>
+            <div>
+              <h1 style={{ color: '#2ecc71', margin: '0 0 10px 0', fontSize: '50px' }}>✓</h1>
+              <h2 style={{ color: '#2ecc71' }}>Corect!</h2>
+              <p style={{ color: '#aaa' }}>Ai ochi de vultur.</p>
+            </div>
           ) : (
-            <h2 className="negative-val">
-              ❌ Greșit! Numărătoarea corectă era <strong>{actualCount}</strong>. (Tu ai zis {userGuess})
-            </h2>
+            <div>
+              <h1 style={{ color: '#e74c3c', margin: '0 0 10px 0', fontSize: '50px' }}>✗</h1>
+              <h2 style={{ color: '#e74c3c' }}>Greșit!</h2>
+              <p style={{ fontSize: '18px' }}>Răspunsul tău: <strong style={{ color: '#e74c3c' }}>{userGuess}</strong></p>
+              <p style={{ fontSize: '18px' }}>Răspunsul real: <strong style={{ color: '#2ecc71' }}>{actualCount}</strong></p>
+            </div>
           )}
-          <br />
-          <button onClick={() => setPhase('intro')} className="btn btn-info">Mai încearcă</button>
+          <button onClick={() => setPhase('intro')} className="btn btn-info" style={{ width: '100%', marginTop: '20px' }}>Antrenează-te din nou</button>
         </div>
       )}
     </div>
