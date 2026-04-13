@@ -2,10 +2,11 @@
 import { useState, useEffect } from 'react';
 import { createDeck, shuffleDeck } from '../utils/deckLogic';
 import Card from '../components/game/Card';
-import './CardCounting.css'; // Importăm noul fișier CSS!
+import './CardCounting.css'; 
 
-export default function CardCounting() {
-  const [phase, setPhase] = useState('intro'); // 'intro', 'loading', 'playing', 'guessing', 'result'
+// AM ADĂUGAT prop-ul onTrainingEnd aici:
+export default function CardCounting({ onTrainingEnd }) {
+  const [phase, setPhase] = useState('intro'); 
   const [targetNumCards, setTargetNumCards] = useState(10);
   const [speed, setSpeed] = useState(1000);
   
@@ -77,12 +78,20 @@ export default function CardCounting() {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    if (userGuess !== '') setPhase('result');
+    if (userGuess !== '') {
+      setPhase('result');
+      
+      // AICI SALVĂM REZULTATUL
+      const isCorrect = parseInt(userGuess) === actualCount;
+      if (onTrainingEnd) {
+        onTrainingEnd({ countAttempted: true, countCorrect: isCorrect });
+      }
+    }
   };
 
   return (
     <div className="app-container">
-      <h1> Antrenament Numărat Cărți (Hi-Lo)</h1>
+      <h1>🧠 Antrenament Numărat Cărți (Hi-Lo)</h1>
 
       {phase === 'intro' && (
         <div className="info-card">
@@ -163,10 +172,10 @@ export default function CardCounting() {
       {phase === 'result' && (
         <div className="info-card">
           {parseInt(userGuess) === actualCount ? (
-            <h2 className="positive-val"> Felicitări! Numărătoarea ta este corectă!</h2>
+            <h2 className="positive-val">🎉 Felicitări! Numărătoarea ta este corectă!</h2>
           ) : (
             <h2 className="negative-val">
-               Greșit! Numărătoarea corectă era <strong>{actualCount}</strong>. (Tu ai zis {userGuess})
+              ❌ Greșit! Numărătoarea corectă era <strong>{actualCount}</strong>. (Tu ai zis {userGuess})
             </h2>
           )}
           <br />

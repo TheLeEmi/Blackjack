@@ -1,4 +1,34 @@
 /* src/pages/Profile.css */
+.stats-grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 15px;
+  margin-bottom: 30px;
+}
+
+.stat-box {
+  background-color: rgba(255, 255, 255, 0.05);
+  padding: 15px;
+  border-radius: 10px;
+  border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.stat-box h4 {
+  margin: 0 0 10px 0;
+  color: #aaa;
+  font-size: 14px;
+}
+
+.stat-number {
+  margin: 0;
+  font-size: 28px;
+  font-weight: bold;
+}
+
+.finance-section {
+  border-top: 1px solid rgba(255,255,255,0.1);
+  padding-top: 20px;
+}
 .profile-card {
   background-color: rgba(0, 0, 0, 0.7);
   padding: 40px;

@@ -1,13 +1,9 @@
 // src/pages/AdminDashboard.jsx
-import { useState } from 'react';
-import usersData from '../data/users.json';
 import './AdminDashboard.css';
 
-export default function AdminDashboard() {
-  // Încărcăm datele din JSON în starea locală a paginii
-  const [users, setUsers] = useState(usersData);
-
-  // Funcție pentru a da BAN sau a debloca un user
+// Observă că acum primește "users" și "setUsers" ca "Props" de la App.jsx
+export default function AdminDashboard({ users, setUsers }) {
+  
   const toggleBanStatus = (userId) => {
     setUsers(users.map(user => {
       if (user.id === userId) {
@@ -17,7 +13,6 @@ export default function AdminDashboard() {
     }));
   };
 
-  // Funcție pentru a schimba rolul (User <-> Admin)
   const toggleRole = (userId) => {
     setUsers(users.map(user => {
       if (user.id === userId) {
@@ -27,7 +22,6 @@ export default function AdminDashboard() {
     }));
   };
 
-  // Funcție pentru a reseta banii unui user la 0 (dacă trișează)
   const resetBalance = (userId) => {
     setUsers(users.map(user => {
       if (user.id === userId) {
@@ -37,16 +31,14 @@ export default function AdminDashboard() {
     }));
   };
 
-  // Calcule pentru cardurile de statistici
   const totalUsers = users.length;
   const activeAdmins = users.filter(u => u.role === 'admin').length;
   const totalEconomy = users.reduce((sum, user) => sum + user.balance, 0);
 
   return (
     <div className="app-container">
-      <h1 style={{ color: 'gold', marginBottom: '30px' }}> Panou de Control Administrator</h1>
+      <h1 style={{ color: 'gold', marginBottom: '30px' }}>👑 Panou de Control Administrator</h1>
 
-      {/* STATISTICI GENERALE */}
       <div className="dashboard-grid">
         <div className="stat-card">
           <h3>Total Utilizatori</h3>
@@ -62,7 +54,6 @@ export default function AdminDashboard() {
         </div>
       </div>
 
-      {/* TABEL GESTIUNE UTILIZATORI */}
       <div className="admin-table-container">
         <h2 style={{ textAlign: 'left', marginBottom: '15px' }}>Gestiune Utilizatori</h2>
         <table className="leaderboard-table" style={{ marginTop: '0' }}>
@@ -91,25 +82,15 @@ export default function AdminDashboard() {
                 </td>
                 <td>${user.balance.toLocaleString()}</td>
                 <td>
-                  {/* Nu lăsăm adminul principal să își dea ban singur */}
-                  {user.id !== 1 && (
+                  {user.username !== 'admin' && ( // L-am protejat pe adminul "suprem" după nume
                     <>
-                      <button 
-                        className={`action-btn ${user.status === 'activ' ? 'btn-ban' : 'btn-promote'}`}
-                        onClick={() => toggleBanStatus(user.id)}
-                      >
+                      <button className={`action-btn ${user.status === 'activ' ? 'btn-ban' : 'btn-promote'}`} onClick={() => toggleBanStatus(user.id)}>
                         {user.status === 'activ' ? 'Ban' : 'Unban'}
                       </button>
-                      <button 
-                        className="action-btn btn-promote"
-                        onClick={() => toggleRole(user.id)}
-                      >
+                      <button className="action-btn btn-promote" onClick={() => toggleRole(user.id)}>
                         Make {user.role === 'admin' ? 'User' : 'Admin'}
                       </button>
-                      <button 
-                        className="action-btn btn-reset"
-                        onClick={() => resetBalance(user.id)}
-                      >
+                      <button className="action-btn btn-reset" onClick={() => resetBalance(user.id)}>
                         Reset $
                       </button>
                     </>

@@ -2,20 +2,14 @@
 import { useState } from 'react';
 import './Leaderboard.css';
 
-const MOCK_USERS = [
-  { id: 1, name: "Emilian", wins: 45, countAccuracy: 92 },
-  { id: 2, name: "Andrei_Ace", wins: 38, countAccuracy: 98 },
-  { id: 3, name: "BlackjackQueen", wins: 52, countAccuracy: 85 },
-  { id: 4, name: "Lucky_Striker", wins: 20, countAccuracy: 70 },
-  { id: 5, name: "DealerBuster", wins: 31, countAccuracy: 94 },
-];
-
-export default function Leaderboard() {
+export default function Leaderboard({ users }) {
   const [sortBy, setSortBy] = useState('wins'); // 'wins' sau 'accuracy'
 
-  const sortedUsers = [...MOCK_USERS].sort((a, b) => {
-    if (sortBy === 'wins') return b.wins - a.wins;
-    return b.countAccuracy - a.countAccuracy;
+  // Sortăm utilizatorii REALI pe care îi primim din App.jsx
+  // Folosim fallback la 0 în caz că un user nou nu are încă proprietatea "wins"
+  const sortedUsers = [...users].sort((a, b) => {
+    if (sortBy === 'wins') return (b.wins || 0) - (a.wins || 0);
+    return (b.countAccuracy || 0) - (a.countAccuracy || 0);
   });
 
   return (
@@ -52,17 +46,20 @@ export default function Leaderboard() {
           </thead>
           <tbody>
             {sortedUsers.map((user, index) => (
-              <tr key={user.id}>
+              <tr key={user.id} style={{ opacity: user.status === 'banat' ? 0.5 : 1 }}>
                 <td className={index === 0 ? "rank-gold" : index === 1 ? "rank-silver" : index === 2 ? "rank-bronze" : ""}>
                   #{index + 1}
                 </td>
-                <td>{user.name}</td>
-                <td>{user.wins}</td>
+                <td>
+                  {user.username} {user.status === 'banat' && '(Banat)'}
+                  {user.role === 'admin' && ' 👑'}
+                </td>
+                <td>{user.wins || 0}</td>
                 <td>
                   <div className="accuracy-bar-container">
-                    <div className="accuracy-bar-fill" style={{ width: `${user.countAccuracy}%` }}></div>
+                    <div className="accuracy-bar-fill" style={{ width: `${user.countAccuracy || 0}%` }}></div>
                   </div>
-                  {user.countAccuracy}%
+                  {user.countAccuracy || 0}%
                 </td>
               </tr>
             ))}
