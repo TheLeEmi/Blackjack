@@ -1,11 +1,10 @@
 /* src/App.css */
 
-/* --- STILURI GLOBALE ȘI FUNDAL CAZINO --- */
+
 body {
   margin: 0;
   min-height: 100vh;
   background-color: #111;
-  /* Fundal verde premium tip masă de cazino */
   background-image: radial-gradient(circle at 50% 30%, #2a5a2f 0%, #0a1a0f 100%);
   color: white;
   font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif;
@@ -19,7 +18,7 @@ body {
   margin: 0 auto;
 }
 
-/* --- NAVIGARE RESPONSIVĂ --- */
+
 .main-nav {
   display: flex;
   justify-content: space-between;
@@ -59,7 +58,7 @@ body {
   border-color: rgba(255, 215, 0, 0.5);
 }
 
-/* Dropdown */
+
 .nav-dropdown-container { position: relative; display: inline-block; }
 
 .dropdown-menu {
@@ -88,7 +87,7 @@ body {
 
 .dropdown-item:hover { background-color: rgba(255, 215, 0, 0.1); color: gold; padding-left: 25px; }
 
-/* --- BUTOANE JOC --- */
+
 .btn {
   padding: 12px 25px;
   font-size: 16px;
@@ -114,7 +113,7 @@ body {
 
 .btn-info { background: linear-gradient(to bottom, #3498db, #2980b9); color: white; }
 
-/* --- MASA DE BLACKJACK --- */
+
 .table-section {
   display: flex;
   flex-direction: column;
@@ -159,10 +158,10 @@ body {
   position: relative;
 }
 
-/* --- ANIMAȚII CĂRȚI --- */
+
 .playing-card {
   width: 90px;
-  margin: 0 -25px; /* Suprapunere cărți */
+  margin: 0 -25px; 
   border-radius: 8px;
   box-shadow: -2px 5px 10px rgba(0,0,0,0.5);
   transition: transform 0.3s ease;
@@ -181,7 +180,7 @@ body {
   100% { transform: translateY(0) rotate(0) scale(1); opacity: 1; }
 }
 
-/* --- MEDIA QUERIES (PENTRU TELEFOANE) --- */
+
 @media (max-width: 768px) {
   .main-nav { padding: 10px 15px; }
   .nav-title { font-size: 18px; }
@@ -195,20 +194,19 @@ body {
   
   .btn { width: 100%; margin: 5px 0; }
   .dropdown-menu {
-    right: 0; /* Pe telefon îl ținem aliniat la margine ca să nu iasă din ecran */
+    right: 0; 
   }
 }
 
-/* Stil general pentru iconițele din interfață */
+
 .ui-icon {
   width: 20px;
   height: 20px;
-  vertical-align: middle; /* Le aliniază perfect cu textul de lângă ele */
-  margin-right: 8px; /* Spațiu între iconiță și text */
+  vertical-align: middle;
+  margin-right: 8px; 
   object-fit: contain;
 }
 
-/* Dacă iconițele sunt în titluri mari, le facem un pic mai mari */
 h1 .ui-icon, h2 .ui-icon {
   width: 28px;
   height: 28px;
