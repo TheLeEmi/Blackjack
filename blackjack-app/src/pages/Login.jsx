@@ -11,8 +11,8 @@ export default function Login({ onLogin }) {
     e.preventDefault();
     if (!username || !password) return alert("Completează toate câmpurile!");
 
-    // Simulăm un user normal
-    // În viitor, aici vei face cererea către Backend (Node.js)
+    // Simulam un user normal
+    // In viitor, aici se va face cererea catre Backend 
     onLogin({ 
       username, 
       role: username.toLowerCase() === 'admin' ? 'admin' : 'user' 

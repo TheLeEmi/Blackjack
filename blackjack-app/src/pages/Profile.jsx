@@ -7,20 +7,20 @@ export default function Profile({ user, onUpdateData }) {
   const [isEditingName, setIsEditingName] = useState(false);
   const [newName, setNewName] = useState(user.username);
 
-  // Calculăm Rata de Câștig
+
   const winRate = user.totalGames > 0 
     ? ((user.wins / user.totalGames) * 100).toFixed(1) 
     : 0;
 
   const handleDeposit = () => {
     if (depositAmount <= 0) return;
-    onUpdateData(Number(depositAmount)); // Trimitem numărul pentru bani
+    onUpdateData(Number(depositAmount)); 
     alert(`Ai depus $${depositAmount} cu succes!`);
   };
 
   const handleSaveName = () => {
     if (!newName.trim()) return;
-    onUpdateData({ newName: newName }); // Trimitem un obiect cu noul nume
+    onUpdateData({ newName: newName }); 
     setIsEditingName(false);
   };
 
@@ -28,7 +28,7 @@ export default function Profile({ user, onUpdateData }) {
     <div className="app-container">
       <div className="profile-card">
         
-        {/* Antetul Profilului cu opțiunea de editare */}
+        
         <div className="profile-header" style={{ marginBottom: '30px' }}>
           {isEditingName ? (
             <div style={{ display: 'flex', justifyContent: 'center', gap: '10px' }}>
@@ -56,7 +56,7 @@ export default function Profile({ user, onUpdateData }) {
           <p style={{ color: '#aaa' }}>Rol: <strong style={{ color: user.role === 'admin' ? 'gold' : 'white' }}>{user.role}</strong></p>
         </div>
 
-        {/* Zona de Statistici */}
+        
         <div className="stats-grid">
           <div className="stat-box">
             <h4>Jocuri Jucate</h4>
@@ -76,7 +76,7 @@ export default function Profile({ user, onUpdateData }) {
           </div>
         </div>
 
-        {/* Zona de Finanțe */}
+        
         <div className="finance-section">
           <div className="balance-display">
             ${user.balance.toLocaleString()}

@@ -88,7 +88,7 @@ export default function AdminDashboard({ users, setUsers }) {
                   ${user.balance.toLocaleString()}
                 </td>
                 <td style={{ padding: '15px', borderRadius: '0 10px 10px 0' }}>
-                  {/* Protejăm primul admin să nu fie șters din greșeală */}
+                  {/* Protejam primul admin sa nu fie sters din greseala */}
                   {user.id !== 1 && user.username !== 'admin' && (
                     <div style={{ display: 'flex', gap: '5px' }}>
                       <button 

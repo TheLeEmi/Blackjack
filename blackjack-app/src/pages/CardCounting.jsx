@@ -85,7 +85,7 @@ export default function CardCounting({ onTrainingEnd }) {
     }
   };
 
-  // Stil comun pentru input-uri
+  
   const inputStyle = { padding: '10px', fontSize: '16px', borderRadius: '5px', border: '1px solid #444', background: '#222', color: 'white', width: '100%', boxSizing: 'border-box', marginTop: '5px' };
 
   return (

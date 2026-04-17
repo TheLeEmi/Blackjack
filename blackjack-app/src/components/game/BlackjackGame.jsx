@@ -200,7 +200,7 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
           </div>
         </section>
         
-        {/* ZONA JUCĂTORILOR */}
+        {/* ZONA JUCATORILOR */}
         <div className="players-grid">
           {playerStates.map((p, index) => {
             const isActive = index === activePlayerIndex && gameState === 'playing';

@@ -1,7 +1,7 @@
 // src/components/game/Card.jsx
 export default function Card({ card, hidden, index }) {
-  // Oferim fiecărei cărți un z-index mai mare bazat pe poziția ei în mână
-  // astfel încât ultima carte să fie mereu deasupra
+  // Oferim fiecarei carți un index mai mare bazat pe pozitia ei în mana
+  // astfel incat ultima carte sa fie mereu deasupra
   const cardStyle = { zIndex: index || 1 };
 
   if (hidden) {
