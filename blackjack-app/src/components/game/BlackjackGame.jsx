@@ -3,7 +3,9 @@ import { useState, useEffect } from 'react';
 import { createDeck, shuffleDeck, calculateScore } from '../../utils/deckLogic';
 import Card from './Card';
 
-export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
+export default function BlackjackGame({ user, players, onGameEnd, onExit, socket }) {
+  const isOnline = !!(socket && players.some(p => p.socketId));
+
   const [gameState, setGameState] = useState('betting'); 
   const [deck, setDeck] = useState([]);
   const [dealerHand, setDealerHand] = useState([]);
@@ -14,10 +16,42 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
   
   const [activePlayerIndex, setActivePlayerIndex] = useState(0);
 
+  
+  useEffect(() => {
+    if (!isOnline || !socket) return;
+
+    
+    socket.on('gameStateUpdate', (serverState) => {
+      setGameState(serverState.gameState);
+      setDealerHand(serverState.dealerHand);
+      setPlayerStates(serverState.playerStates);
+      setActivePlayerIndex(serverState.activePlayerIndex);
+    });
+
+    
+    socket.on('payout', (data) => {
+      if (data.balance !== 0 || data.gamePlayed) {
+        onGameEnd({ balance: data.balance, gamePlayed: data.gamePlayed, win: data.win });
+      }
+    });
+
+    return () => {
+      socket.off('gameStateUpdate');
+      socket.off('payout');
+    };
+  }, [socket, isOnline, onGameEnd]);
+
+  
   const handleBetChange = (index, value) => {
+    if (isOnline && !playerStates[index].isMe) return;
+
     const newStates = [...playerStates];
     newStates[index].bet = Number(value);
     setPlayerStates(newStates);
+
+    if (isOnline) {
+      socket.emit('updateBet', Number(value));
+    }
   };
 
   const placeBetsAndStart = () => {
@@ -27,6 +61,17 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
       return;
     }
 
+    if (isOnline) {
+      socket.emit('readyToPlay');
+      
+      const newStates = [...playerStates];
+      const myIndex = newStates.findIndex(p => p.isMe);
+      if (myIndex !== -1) newStates[myIndex].status = 'ready';
+      setPlayerStates(newStates);
+      return;
+    }
+
+  
     if (mainUser) onGameEnd(-mainUser.bet); 
 
     let currentDeck = shuffleDeck(createDeck());
@@ -59,6 +104,12 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
   const hit = () => {
     if (gameState !== 'playing') return;
     
+    if (isOnline) {
+      socket.emit('playerAction', 'hit');
+      return;
+    }
+
+
     let newStates = [...playerStates];
     let currentPlayer = newStates[activePlayerIndex];
     let newDeck = [...deck];
@@ -76,12 +127,22 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
 
   const stand = () => {
     if (gameState !== 'playing') return;
+
+    if (isOnline) {
+      socket.emit('playerAction', 'stand');
+      return;
+    }
+
+    
     let newStates = [...playerStates];
     newStates[activePlayerIndex].status = 'stand';
     advanceTurn(newStates);
   };
 
+  
   useEffect(() => {
+    if (isOnline) return; 
+
     if (gameState === 'dealerTurn') {
       const dealerScore = calculateScore(dealerHand);
       if (dealerScore < 17) {
@@ -94,7 +155,7 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
         determineWinners(dealerScore);
       }
     }
-  }, [gameState, dealerHand]);
+  }, [gameState, dealerHand, isOnline]);
 
   const determineWinners = (dScore) => {
     let newStates = [...playerStates];
@@ -130,6 +191,8 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
     }
   };
 
+  const isMyTurn = isOnline ? playerStates[activePlayerIndex]?.isMe : true;
+
   if (gameState === 'betting') {
     return (
       <div className="app-container">
@@ -140,23 +203,30 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
         </div>
         
         <div className="player-spot" style={{ margin: '0 auto', maxWidth: '600px' }}>
-          <h2 style={{ color: 'gold', borderBottom: '1px solid rgba(255,215,0,0.3)', paddingBottom: '10px' }}>Plasează Pariurile</h2>
+          <h2 style={{ color: 'gold', borderBottom: '1px solid rgba(255,215,0,0.3)', paddingBottom: '10px' }}>
+            {isOnline ? 'Pregătire Joc Online' : 'Plasează Pariurile'}
+          </h2>
           <div className="players-grid" style={{ marginTop: '20px' }}>
             {playerStates.map((p, index) => (
               <div key={p.id} style={{ backgroundColor: p.isMe ? 'rgba(40,167,69,0.2)' : 'rgba(255,255,255,0.05)', padding: '15px', borderRadius: '10px', flex: 1, minWidth: '150px' }}>
-                <h4 style={{ margin: '0 0 10px 0' }}>{p.name}</h4>
+                <h4 style={{ margin: '0 0 10px 0' }}>{p.name} {p.status === 'ready' && '✅'}</h4>
                 {p.isMe && <p style={{ fontSize: '12px', color: '#28a745', margin: '0 0 10px 0' }}>Bal: ${user.balance}</p>}
                 <input 
                   type="number" 
                   value={p.bet} 
                   onChange={(e) => handleBetChange(index, e.target.value)}
-                  style={{ padding: '8px', width: '80%', textAlign: 'center', borderRadius: '5px', border: '1px solid #333', background: '#222', color: 'white' }}
+                  disabled={isOnline && !p.isMe} // Blochează pariurile altora în modul online
+                  style={{ padding: '8px', width: '80%', textAlign: 'center', borderRadius: '5px', border: '1px solid #333', background: '#222', color: 'white', opacity: (isOnline && !p.isMe) ? 0.5 : 1 }}
                 />
               </div>
             ))}
           </div>
-          <button className="btn btn-primary" onClick={placeBetsAndStart} style={{ marginTop: '25px', width: '100%' }}>
-            Împarte Cărțile
+          <button 
+            className={`btn ${playerStates.find(p => p.isMe)?.status === 'ready' ? 'btn-warning' : 'btn-primary'}`} 
+            onClick={placeBetsAndStart} 
+            style={{ marginTop: '25px', width: '100%' }}
+          >
+            {isOnline ? (playerStates.find(p => p.isMe)?.status === 'ready' ? 'Așteptăm ceilalți jucători...' : 'Sunt Gata!') : 'Împarte Cărțile'}
           </button>
         </div>
       </div>
@@ -169,11 +239,15 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
         {gameState === 'playing' && (
           <div style={{ backgroundColor: 'rgba(0,0,0,0.7)', padding: '15px 30px', borderRadius: '50px', display: 'inline-flex', alignItems: 'center', gap: '20px', boxShadow: '0 5px 15px rgba(0,0,0,0.5)' }}>
             <h3 style={{ color: 'gold', margin: 0, fontSize: '20px' }}>
-              ▶ Rândul: <span style={{ color: 'white' }}>{playerStates[activePlayerIndex].name}</span>
+              ▶ Rândul: <span style={{ color: 'white' }}>{playerStates[activePlayerIndex]?.name}</span>
             </h3>
             <div style={{ width: '2px', height: '30px', background: 'rgba(255,255,255,0.2)' }}></div>
-            <button onClick={hit} className="btn btn-primary" style={{ margin: 0 }}>Hit (Trage)</button>
-            <button onClick={stand} className="btn btn-warning" style={{ margin: 0 }}>Stand</button>
+            <button onClick={hit} className="btn btn-primary" style={{ margin: 0, opacity: isMyTurn ? 1 : 0.5 }} disabled={!isMyTurn}>
+              Hit
+            </button>
+            <button onClick={stand} className="btn btn-warning" style={{ margin: 0, opacity: isMyTurn ? 1 : 0.5 }} disabled={!isMyTurn}>
+              Stand
+            </button>
           </div>
         )}
         
@@ -183,24 +257,24 @@ export default function BlackjackGame({ user, players, onGameEnd, onExit }) {
               Mână Nouă
             </button>
             <button onClick={onExit} className="btn btn-info">
-              Schimbă Jucătorii
+              {isOnline ? 'Părăsește Masa' : 'Schimbă Jucătorii'}
             </button>
           </div>
         )}
       </div>
 
       <div className="table-section">
-        {/* ZONA DEALERULUI */}
         <section className="player-spot" style={{ padding: '15px 40px', background: 'rgba(0,0,0,0.6)' }}>
           <h3 style={{ margin: '0 0 15px 0', textTransform: 'uppercase', letterSpacing: '2px', color: '#ccc' }}>
-            Dealer <span style={{ color: 'white', background: '#333', padding: '2px 8px', borderRadius: '10px', fontSize: '14px' }}>{gameState === 'playing' ? '?' : calculateScore(dealerHand)}</span>
+            Dealer <span style={{ color: 'white', background: '#333', padding: '2px 8px', borderRadius: '10px', fontSize: '14px' }}>
+              {gameState === 'playing' ? '?' : calculateScore(dealerHand)}
+            </span>
           </h3>
           <div className="hand-container">
             {dealerHand.map((c, i) => <Card key={i} index={i} card={c} hidden={i === 0 && gameState === 'playing'} />)}
           </div>
         </section>
         
-        {/* ZONA JUCATORILOR */}
         <div className="players-grid">
           {playerStates.map((p, index) => {
             const isActive = index === activePlayerIndex && gameState === 'playing';

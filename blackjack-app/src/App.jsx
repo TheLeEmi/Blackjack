@@ -7,91 +7,143 @@ import Login from './pages/Login';
 import Leaderboard from './pages/Leaderboard.jsx';
 import AdminDashboard from './pages/AdminDashboard';
 import Profile from './pages/Profile.jsx';
-import defaultUsersData from './data/users.json';
+import { io } from 'socket.io-client';
 import './App.css';
 
 export default function App() {
-  const [users, setUsers] = useState(() => {
-    const savedUsers = localStorage.getItem('blackjackUsers');
-    if (savedUsers) {
-      return JSON.parse(savedUsers);
-    }
-    return defaultUsersData;
-  });
-
-  useEffect(() => {
-    localStorage.setItem('blackjackUsers', JSON.stringify(users));
-  }, [users]);
-
+  const [users, setUsers] = useState([]); 
   const [user, setUser] = useState(null); 
+  const [isLoading, setIsLoading] = useState(true);
   const [currentPage, setCurrentPage] = useState('blackjack');
   const [isMenuOpen, setIsMenuOpen] = useState(false); 
   const [activePlayers, setActivePlayers] = useState(null); 
-
-  const handleLogin = (loginData) => {
-    let existingUser = users.find(u => u.username === loginData.username);
-    
-    if (existingUser) {
-      if(existingUser.status === 'banat') {
-        alert("Acest cont este BANAT!");
+  const [socket, setSocket] = useState(null);
+  useEffect(() => {
+    const checkSession = async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        setIsLoading(false);
         return;
       }
-      setUser(existingUser);
-    } else {
-      const newUser = {
-        id: Date.now(),
-        username: loginData.username,
-        role: loginData.role,
-        balance: 1000,
-        status: "activ",
-        wins: 0,
-        totalGames: 0, 
-        countAccuracy: 0
-      };
-      setUsers(prev => [...prev, newUser]);
-      setUser(newUser);
-    }
+
+      try {
+        const response = await fetch('http://localhost:5000/api/auth/me', {
+          method: 'GET',
+          headers: {
+            'x-auth-token': token
+          }
+        });
+
+        if (response.ok) {
+          const userData = await response.json();
+          setUser(userData);
+        } else {
+          localStorage.removeItem('token');
+        }
+      } catch (error) {
+        console.error('Eroare la auto-login:', error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    checkSession();
+  }, []);
+
+  useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const response = await fetch('http://localhost:5000/api/users');
+        if (response.ok) {
+          const data = await response.json();
+          setUsers(data);
+        }
+      } catch (error) {
+        console.error('Eroare la încărcarea utilizatorilor:', error);
+      }
+    };
+
+    fetchUsers();
+  }, [user]); 
+
+  const handleLogin = (userData) => {
+    setUser(userData);
   };
 
-  const updateUserData = (updates) => {
-    setUsers(prevUsers => {
-      const updatedUsers = prevUsers.map(u => {
-        if (u.id === user.id) {
-          const updated = { ...u };
-          
-          if (typeof updates === 'number') {
-            updated.balance += updates;
-          } else {
-            if (updates.newName) updated.username = updates.newName;
-            
-            if (updates.balance !== undefined) updated.balance += updates.balance;
-            if (updates.win) updated.wins = (updated.wins || 0) + 1;
-            if (updates.gamePlayed) updated.totalGames = (updated.totalGames || 0) + 1;
+  const handleLogout = () => {
+    localStorage.removeItem('token');
+    setUser(null);
+    setCurrentPage('blackjack');
+    setActivePlayers(null);
+  };
 
-            if (updates.countAttempted) {
-              updated.totalCountAttempts = (updated.totalCountAttempts || 0) + 1;
-              if (updates.countCorrect) {
-                updated.correctCounts = (updated.correctCounts || 0) + 1; 
-              }
-              updated.countAccuracy = Math.round((updated.correctCounts / updated.totalCountAttempts) * 100) || 0;
-            }
-          }
-          return updated;
-        }
-        return u;
+  // --- CONECTAREA LA MULTIPLAYER (SOCKET.IO) ---
+  useEffect(() => {
+    if (user && !socket) {
+      const newSocket = io('http://localhost:5000', {
+        auth: { token: localStorage.getItem('token') } 
       });
 
-      const updatedCurrentUser = updatedUsers.find(u => u.id === user.id);
-      setUser(updatedCurrentUser);
+      setSocket(newSocket);
 
-      return updatedUsers;
-    });
+      
+      newSocket.on('connect', () => {
+        console.log('✅ Conectat la serverul Multiplayer cu ID-ul:', newSocket.id);
+      });
+    }
+
+    
+    return () => {
+      if (socket && !user) {
+        socket.disconnect();
+        setSocket(null);
+      }
+    };
+  }, [user, socket]);
+
+  const updateUserData = async (updates) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) return;
+
+      let updatePayload = {};
+      if (typeof updates === 'number') {
+        updatePayload = { balance: updates }; 
+      } else {
+        updatePayload = updates; 
+      }
+
+      const response = await fetch('http://localhost:5000/api/users/update', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token 
+        },
+        body: JSON.stringify(updatePayload)
+      });
+
+      if (response.ok) {
+        const updatedUser = await response.json();
+        setUser(updatedUser);
+      }
+    } catch (error) {
+      console.error('Eroare la salvarea progresului:', error);
+    }
   };
 
   const handleStartGame = (playersList) => {
     setActivePlayers(playersList);
     setCurrentPage('blackjack');
   };
+
+  
+  if (isLoading) {
+    return (
+      <div style={{ display: 'flex', justifyContent: 'center', alignItems: 'center', height: '100vh', color: 'gold', fontSize: '24px' }}>
+        Se verifică conexiunea securizată...
+      </div>
+    );
+  }
 
   if (!user) {
     return <Login onLogin={handleLogin} />;
@@ -138,7 +190,7 @@ export default function App() {
               <hr style={{ opacity: 0.2, margin: '5px 0' }} />
               <button 
                 className="dropdown-item" 
-                onClick={() => { setUser(null); setCurrentPage('blackjack'); setActivePlayers(null); }} 
+                onClick={handleLogout} 
                 style={{ color: '#ff4444' }}
               >
                 Deconectare
@@ -150,13 +202,14 @@ export default function App() {
 
       {currentPage === 'blackjack' && (
         !activePlayers ? (
-          <Lobby user={user} onStartGame={handleStartGame} />
+          <Lobby user={user} onStartGame={handleStartGame} socket={socket} />
         ) : (
           <BlackjackGame 
             user={user} 
             players={activePlayers} 
             onGameEnd={updateUserData} 
             onExit={() => setActivePlayers(null)}
+            socket={socket} 
           />
         )
       )}

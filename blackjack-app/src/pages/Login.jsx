@@ -7,20 +7,37 @@ export default function Login({ onLogin }) {
   const [username, setUsername] = useState('');
   const [password, setPassword] = useState('');
 
-  const handleAuth = (e) => {
+  const handleAuth = async (e) => {
     e.preventDefault();
     if (!username || !password) return alert("Completează toate câmpurile!");
 
-    // Simulam un user normal
-    // In viitor, aici se va face cererea catre Backend 
-    onLogin({ 
-      username, 
-      role: username.toLowerCase() === 'admin' ? 'admin' : 'user' 
-    });
+    const endpoint = isSignup ? '/api/auth/register' : '/api/auth/login';
+    
+    try {
+      const response = await fetch(`http://localhost:5000${endpoint}`, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json'
+        },
+        body: JSON.stringify({ username, password })
+      });
+
+      const data = await response.json();
+
+      if (!response.ok) {
+        return alert(data.msg || "Eroare la autentificare");
+      }
+      localStorage.setItem('token', data.token);
+      onLogin(data.user);
+      
+    } catch (error) {
+      console.error("Eroare de conexiune:", error);
+      alert("Nu mă pot conecta la serverul backend! Asigură-te că rulează pe portul 5000.");
+    }
   };
 
   const handleGuest = () => {
-    onLogin({ username: 'Guest', role: 'guest' });
+    onLogin({ _id: 'guest', username: 'Vizitator', role: 'guest', balance: 1000 });
   };
 
   return (

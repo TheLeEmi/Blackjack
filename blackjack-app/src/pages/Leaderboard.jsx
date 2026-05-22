@@ -4,9 +4,11 @@ import { useState } from 'react';
 export default function Leaderboard({ users }) {
   const [sortBy, setSortBy] = useState('wins'); 
 
-  const sortedUsers = [...users].sort((a, b) => {
-    if (sortBy === 'wins') return (b.wins || 0) - (a.wins || 0);
-    return (b.countAccuracy || 0) - (a.countAccuracy || 0);
+  const sortedUsers = [...users]
+    .filter(user => user.role !== 'guest' && user.role !== 'admin' && user.username !== 'Vizitator' && user.username !== 'Guest')
+    .sort((a, b) => {
+      if (sortBy === 'wins') return (b.wins || 0) - (a.wins || 0);
+      return (b.countAccuracy || 0) - (a.countAccuracy || 0);
   });
 
   return (

@@ -1,33 +1,56 @@
 // src/pages/AdminDashboard.jsx
-import { useState } from 'react';
+import React from 'react';
 
 export default function AdminDashboard({ users, setUsers }) {
   
-  const toggleBanStatus = (userId) => {
-    setUsers(users.map(user => {
-      if (user.id === userId) {
-        return { ...user, status: user.status === 'activ' ? 'banat' : 'activ' };
+  
+  const handleAdminAction = async (targetUserId, action, value) => {
+    try {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        alert('Nu ești autentificat!');
+        return;
       }
-      return user;
-    }));
+
+      const response = await fetch('http://localhost:5000/api/users/admin/action', {
+        method: 'PUT',
+        headers: {
+          'Content-Type': 'application/json',
+          'x-auth-token': token 
+        },
+        body: JSON.stringify({ targetUserId, action, value })
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        
+        setUsers(data);
+      } else {
+        
+        alert(`Eroare: ${data.msg}`);
+      }
+    } catch (error) {
+      console.error("Eroare la comunicarea cu serverul:", error);
+      alert("Nu am putut executa acțiunea. Verifică dacă serverul rulează.");
+    }
+  };
+
+  
+  const toggleBanStatus = (userId) => {
+    const user = users.find(u => u.id === userId);
+    const newStatus = user.status === 'activ' ? 'banat' : 'activ';
+    handleAdminAction(userId, 'set-status', newStatus);
   };
 
   const toggleRole = (userId) => {
-    setUsers(users.map(user => {
-      if (user.id === userId) {
-        return { ...user, role: user.role === 'admin' ? 'user' : 'admin' };
-      }
-      return user;
-    }));
+    const user = users.find(u => u.id === userId);
+    const newRole = user.role === 'admin' ? 'user' : 'admin';
+    handleAdminAction(userId, 'set-role', newRole);
   };
 
   const resetBalance = (userId) => {
-    setUsers(users.map(user => {
-      if (user.id === userId) {
-        return { ...user, balance: 0 };
-      }
-      return user;
-    }));
+    handleAdminAction(userId, 'reset-balance', null);
   };
 
   const totalUsers = users.length;
@@ -40,7 +63,7 @@ export default function AdminDashboard({ users, setUsers }) {
         <img src="/icons/shield.png" alt="Security" className="ui-icon" /> Casino Security Terminal
       </h1>
 
-      {/* Carduri de Statistici */}
+      
       <div className="players-grid" style={{ marginBottom: '40px' }}>
         <div className="player-spot" style={{ padding: '20px', minWidth: '200px' }}>
           <h4 style={{ color: '#aaa', margin: '0 0 10px 0', textTransform: 'uppercase' }}>Total Jucători</h4>
@@ -56,7 +79,7 @@ export default function AdminDashboard({ users, setUsers }) {
         </div>
       </div>
 
-      {/* Tabelul de Gestiune */}
+      
       <div className="player-spot" style={{ maxWidth: '1000px', margin: '0 auto', padding: '30px', overflowX: 'auto' }}>
         <h3 style={{ textAlign: 'left', borderBottom: '1px solid rgba(255,255,255,0.1)', paddingBottom: '15px', color: '#ccc' }}>Baza de date utilizatori</h3>
         
@@ -88,8 +111,8 @@ export default function AdminDashboard({ users, setUsers }) {
                   ${user.balance.toLocaleString()}
                 </td>
                 <td style={{ padding: '15px', borderRadius: '0 10px 10px 0' }}>
-                  {/* Protejam primul admin sa nu fie sters din greseala */}
-                  {user.id !== 1 && user.username !== 'admin' && (
+                  
+                  {user.username !== 'admin' && (
                     <div style={{ display: 'flex', gap: '5px' }}>
                       <button 
                         onClick={() => toggleBanStatus(user.id)}
